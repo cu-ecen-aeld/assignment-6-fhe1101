@@ -37,9 +37,13 @@ fi
 if [ -n "${HTTP_PROXY}" ]; then
 	echo "Configuring proxy settings for Bitbake"
 	echo "ALL_PROXY = \"${HTTP_PROXY}\"" >> conf/local.conf
+	echo "HTTP_PROXY = \"${HTTP_PROXY}\"" >> conf/local.conf
+	echo "HTTPS_PROXY = \"${HTTP_PROXY}\"" >> conf/local.conf
 	if [ -n "${NO_PROXY}" ]; then
-		echo "BB_NO_NETWORK = \"0\"" >> conf/local.conf
+		echo "NO_PROXY = \"${NO_PROXY}\"" >> conf/local.conf
 	fi
+	# Disable SSL certificate verification if proxy has issues
+	echo "BB_FETCH_DISABLE_SSL = \"0\"" >> conf/local.conf
 fi
 
 set -e

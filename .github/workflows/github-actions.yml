@@ -16,6 +16,17 @@ jobs:
           - uses: webfactory/ssh-agent@v0.5.4
             with:
                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          - name: Test proxy connectivity
+            env:
+              HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+              HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+            run: |
+               if [ -n "$HTTP_PROXY" ]; then
+                 echo "Testing proxy: $HTTP_PROXY"
+                 timeout 10 curl -x "$HTTP_PROXY" -I http://dotat.at/prog/unifdef/unifdef-2.12.tar.xz 2>&1 | head -20 || echo "Proxy connectivity test completed"
+               else
+                 echo "No HTTP_PROXY set"
+               fi
           - name: Run build
             timeout-minutes: 600
             env:
