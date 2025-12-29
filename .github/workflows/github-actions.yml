@@ -23,7 +23,7 @@ jobs:
             run: |
                if [ -n "$HTTP_PROXY" ]; then
                  echo "Testing proxy: $HTTP_PROXY"
-                 timeout 10 curl -x "$HTTP_PROXY" -I http://dotat.at/prog/unifdef/unifdef-2.12.tar.xz 2>&1 | head -20 || echo "Proxy connectivity test completed"
+                 timeout 5 curl -x "$HTTP_PROXY" -I https://www.google.com 2>&1 | head -10 && echo "Proxy test passed" || echo "Proxy test timed out or failed - continuing with build (proxy will be used via environment)"
                else
                  echo "No HTTP_PROXY set"
                fi
@@ -38,6 +38,9 @@ jobs:
                  -e HTTP_PROXY \
                  -e HTTPS_PROXY \
                  -e NO_PROXY \
+                 -e http_proxy="${{ secrets.HTTP_PROXY }}" \
+                 -e https_proxy="${{ secrets.HTTPS_PROXY }}" \
+                 -e no_proxy="${{ secrets.NO_PROXY }}" \
                  -v $SSH_AUTH_SOCK:/ssh-agent -e SSH_AUTH_SOCK=/ssh-agent \
                  -e GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
                  -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} \
