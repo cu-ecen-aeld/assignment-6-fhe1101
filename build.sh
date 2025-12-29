@@ -33,18 +33,10 @@ else
 	echo "meta-aesd layer already exists"
 fi
 
-# Add proxy settings if HTTP_PROXY is set
+# Note: Proxy settings are passed via environment variables
+# HTTP_PROXY, HTTPS_PROXY, and NO_PROXY are automatically used by bitbake fetchers
 if [ -n "${HTTP_PROXY}" ]; then
-	echo "Configuring proxy settings for Bitbake"
-	cat >> conf/local.conf << 'EOF'
-
-# Proxy settings
-ALL_PROXY = "${HTTP_PROXY}"
-HTTP_PROXY = "${HTTP_PROXY}"
-HTTPS_PROXY = "${HTTP_PROXY}"
-NO_PROXY = "${NO_PROXY}"
-BB_FETCH_DISABLE_SSL = "0"
-EOF
+	echo "Using proxy settings from environment: HTTP_PROXY=${HTTP_PROXY}"
 fi
 
 set -e
