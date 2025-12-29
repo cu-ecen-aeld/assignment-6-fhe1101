@@ -42,30 +42,18 @@ else
 	echo "meta-aesd layer already exists"
 fi
 
-# Configure bitbake to use proxy settings from environment variables
+# Configure bitbake to use curl with SSL verification disabled for proxies
 if [ -n "${HTTP_PROXY}" ] || [ -n "${HTTPS_PROXY}" ]; then
-	echo "Configuring bitbake proxy settings"
-	# Add proxy configuration to local.conf - bitbake needs these explicitly
+	echo "Configuring bitbake fetch commands for proxy compatibility"
+	# Add curl/wget configuration to local.conf
+	# Note: HTTP_PROXY, HTTPS_PROXY, NO_PROXY are passed as environment variables
 	cat >> conf/local.conf << 'PROXYEOF'
 
-# Proxy settings for fetchers (curl, wget, etc.)
-ALL_PROXY ?= "${HTTP_PROXY}"
-BB_FETCH_PREMIRRORONLY ?= "0"
-
 # Curl options for proxy - disable SSL verification for corporate proxies doing SSL inspection
-FETCHCMD_wget = "/usr/bin/env wget --passive-ftp -O ${DL_DIR}/${FILE} -P ${DL_DIR} ${URI}"
+# and enable redirect following (Ford proxy returns HTTP 302)
 FETCHCMD_curl = "/usr/bin/env curl -k -L -o ${DL_DIR}/${FILE} ${URI}"
+FETCHCMD_wget = "/usr/bin/env wget --passive-ftp -O ${DL_DIR}/${FILE} -P ${DL_DIR} ${URI}"
 PROXYEOF
-
-	if [ -n "${HTTP_PROXY}" ]; then
-		echo "HTTP_PROXY = \"${HTTP_PROXY}\"" >> conf/local.conf
-	fi
-	if [ -n "${HTTPS_PROXY}" ]; then
-		echo "HTTPS_PROXY = \"${HTTPS_PROXY}\"" >> conf/local.conf
-	fi
-	if [ -n "${NO_PROXY}" ]; then
-		echo "NO_PROXY = \"${NO_PROXY}\"" >> conf/local.conf
-	fi
 fi
 
 set -e
