@@ -33,5 +33,14 @@ else
 	echo "meta-aesd layer already exists"
 fi
 
+# Add proxy settings if HTTP_PROXY is set
+if [ -n "${HTTP_PROXY}" ]; then
+	echo "Configuring proxy settings for Bitbake"
+	echo "ALL_PROXY = \"${HTTP_PROXY}\"" >> conf/local.conf
+	if [ -n "${NO_PROXY}" ]; then
+		echo "BB_NO_NETWORK = \"0\"" >> conf/local.conf
+	fi
+fi
+
 set -e
 bitbake core-image-aesd
