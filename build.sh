@@ -53,21 +53,18 @@ ALL_PROXY ?= "${HTTP_PROXY}"
 BB_FETCH_PREMIRRORONLY ?= "0"
 
 # Curl options for proxy - disable SSL verification for corporate proxies doing SSL inspection
-BB_FETCH_NETWORK_DLDIR ?= ""
 FETCHCMD_wget = "/usr/bin/env wget --passive-ftp -O ${DL_DIR}/${FILE} -P ${DL_DIR} ${URI}"
 FETCHCMD_curl = "/usr/bin/env curl -k -L -o ${DL_DIR}/${FILE} ${URI}"
-
-# Allow bitbake to use standard environment proxy variables
 PROXYEOF
 
 	if [ -n "${HTTP_PROXY}" ]; then
-		echo "HTTP_PROXY=${HTTP_PROXY}" >> conf/local.conf
+		echo "HTTP_PROXY = \"${HTTP_PROXY}\"" >> conf/local.conf
 	fi
 	if [ -n "${HTTPS_PROXY}" ]; then
-		echo "HTTPS_PROXY=${HTTPS_PROXY}" >> conf/local.conf
+		echo "HTTPS_PROXY = \"${HTTPS_PROXY}\"" >> conf/local.conf
 	fi
 	if [ -n "${NO_PROXY}" ]; then
-		echo "NO_PROXY=${NO_PROXY}" >> conf/local.conf
+		echo "NO_PROXY = \"${NO_PROXY}\"" >> conf/local.conf
 	fi
 fi
 
