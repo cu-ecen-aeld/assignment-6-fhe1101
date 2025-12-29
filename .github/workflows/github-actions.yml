@@ -18,8 +18,15 @@ jobs:
                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           - name: Run build
             timeout-minutes: 600
+            env:
+              HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+              HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+              NO_PROXY: ${{ secrets.NO_PROXY }}
             run: |
                docker run --rm \
+                 -e HTTP_PROXY="${{ env.HTTP_PROXY }}" \
+                 -e HTTPS_PROXY="${{ env.HTTPS_PROXY }}" \
+                 -e NO_PROXY="${{ env.NO_PROXY }}" \
                  -v $SSH_AUTH_SOCK:/ssh-agent -e SSH_AUTH_SOCK=/ssh-agent \
                  -e GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
                  -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} \
@@ -32,8 +39,15 @@ jobs:
               ssh-add -D
           - name: Run full test
             timeout-minutes: 15
+            env:
+              HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+              HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+              NO_PROXY: ${{ secrets.NO_PROXY }}
             run: |
                docker run --rm \
+                 -e HTTP_PROXY="${{ env.HTTP_PROXY }}" \
+                 -e HTTPS_PROXY="${{ env.HTTPS_PROXY }}" \
+                 -e NO_PROXY="${{ env.NO_PROXY }}" \
                  -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} \
                  cuaesd/aesd-autotest:assignment6-yocto \
                  --workdir=${GITHUB_WORKSPACE} \
