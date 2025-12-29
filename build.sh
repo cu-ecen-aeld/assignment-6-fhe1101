@@ -11,12 +11,11 @@ source poky/oe-init-build-env
 
 # Clean up any old proxy settings from local.conf that may cause parsing errors
 if [ -f conf/local.conf ]; then
-	echo "Cleaning up any old proxy settings from local.conf"
-	sed -i '/^ALL_PROXY.*=/d' conf/local.conf
-	sed -i '/^HTTP_PROXY.*=/d' conf/local.conf
-	sed -i '/^HTTPS_PROXY.*=/d' conf/local.conf
-	sed -i '/^NO_PROXY.*=/d' conf/local.conf
-	sed -i '/^BB_FETCH_DISABLE_SSL.*=/d' conf/local.conf
+	echo "Cleaning up any broken proxy settings from local.conf"
+	# Remove any lines containing proxy-related variables (even incomplete ones)
+	sed -i '/ALL_PROXY\|HTTP_PROXY\|HTTPS_PROXY\|NO_PROXY\|BB_FETCH_DISABLE_SSL/d' conf/local.conf
+	# Also remove any trailing stray quotes that might have been left
+	sed -i '/^"$/d' conf/local.conf
 fi
 
 CONFLINE="MACHINE = \"qemuarm64\""
