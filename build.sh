@@ -9,6 +9,16 @@ git submodule update
 # local.conf won't exist until this step on first execution
 source poky/oe-init-build-env
 
+# Clean up any old proxy settings from local.conf that may cause parsing errors
+if [ -f conf/local.conf ]; then
+	echo "Cleaning up any old proxy settings from local.conf"
+	sed -i '/^ALL_PROXY.*=/d' conf/local.conf
+	sed -i '/^HTTP_PROXY.*=/d' conf/local.conf
+	sed -i '/^HTTPS_PROXY.*=/d' conf/local.conf
+	sed -i '/^NO_PROXY.*=/d' conf/local.conf
+	sed -i '/^BB_FETCH_DISABLE_SSL.*=/d' conf/local.conf
+fi
+
 CONFLINE="MACHINE = \"qemuarm64\""
 
 cat conf/local.conf | grep "${CONFLINE}" > /dev/null
