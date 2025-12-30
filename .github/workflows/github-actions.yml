@@ -16,6 +16,15 @@ jobs:
           - uses: webfactory/ssh-agent@v0.5.4
             with:
                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          - name: Cache build artifacts
+            uses: actions/cache@v3
+            with:
+              path: |
+                build/downloads/
+                build/sstate-cache/
+              key: yocto-build-cache-${{ runner.os }}-${{ hashFiles('poky/**', 'meta-aesd/**', 'conf/**') }}
+              restore-keys: |
+                yocto-build-cache-${{ runner.os }}-
           - name: Test proxy connectivity
             env:
               HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
@@ -28,13 +37,15 @@ jobs:
                  echo "No HTTP_PROXY set"
                fi
           - name: Run build
-            timeout-minutes: 600
+            timeout-minutes: 720
             env:
               HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
               HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
               NO_PROXY: ${{ secrets.NO_PROXY }}
             run: |
                docker run --rm \
+                 --memory=12g \
+                 --cpus=8 \
                  -e HTTP_PROXY \
                  -e HTTPS_PROXY \
                  -e NO_PROXY \
@@ -50,7 +61,17 @@ jobs:
           - name: Cleanup
             if: always()
             run: |
-              ssh-add -D
+              echo "Cleaning up SSH keys..."
+              ssh-add -D || true
+              echo "Stopping any lingering Docker containers..."
+              docker ps -a -q | xargs -r docker stop -t 5 || true
+              docker ps -a -q | xargs -r docker rm -f || true
+              echo "Removing dangling Docker images and volumes..."
+              docker image prune -af --filter "until=24h" || true
+              docker volume prune -f || true
+              echo "Clearing Yocto tmp directory to free space..."
+              rm -rf ${GITHUB_WORKSPACE}/build/tmp/* || true
+              echo "Cleanup completed"
           - name: Run full test
             timeout-minutes: 15
             env:
@@ -59,6 +80,8 @@ jobs:
               NO_PROXY: ${{ secrets.NO_PROXY }}
             run: |
                docker run --rm \
+                 --memory=4g \
+                 --cpus=2 \
                  -e HTTP_PROXY \
                  -e HTTPS_PROXY \
                  -e NO_PROXY \
