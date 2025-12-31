@@ -16,15 +16,8 @@ jobs:
           - uses: webfactory/ssh-agent@v0.5.4
             with:
                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          - name: Cache build artifacts
-            uses: actions/cache@v3
-            with:
-              path: |
-                build/downloads/
-                build/sstate-cache/
-              key: yocto-build-cache-${{ runner.os }}-${{ hashFiles('poky/**', 'meta-aesd/**', 'conf/**') }}
-              restore-keys: |
-                yocto-build-cache-${{ runner.os }}-
+          # Cache disabled - Yocto build artifacts are too large for GitHub Actions cache
+          # and frequent rebuilds with fresh cache are more reliable on self-hosted runner
           - name: Test proxy connectivity
             env:
               HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
