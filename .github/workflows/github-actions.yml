@@ -35,22 +35,14 @@ jobs:
               HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
               HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
               NO_PROXY: ${{ secrets.NO_PROXY }}
+              http_proxy: ${{ secrets.HTTP_PROXY }}
+              https_proxy: ${{ secrets.HTTPS_PROXY }}
+              no_proxy: ${{ secrets.NO_PROXY }}
+              SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+              GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
             run: |
-               docker run --rm \
-                 --memory=12g \
-                 --cpus=8 \
-                 -e HTTP_PROXY \
-                 -e HTTPS_PROXY \
-                 -e NO_PROXY \
-                 -e http_proxy="${{ secrets.HTTP_PROXY }}" \
-                 -e https_proxy="${{ secrets.HTTPS_PROXY }}" \
-                 -e no_proxy="${{ secrets.NO_PROXY }}" \
-                 -v $SSH_AUTH_SOCK:/ssh-agent -e SSH_AUTH_SOCK=/ssh-agent \
-                 -e GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
-                 -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} \
-                 cuaesd/aesd-autotest:24-assignment6-yocto \
-                 --workdir=${GITHUB_WORKSPACE} \
-                 ./build.sh
+               cd ${GITHUB_WORKSPACE}
+               ./build.sh
           - name: Cleanup
             if: always()
             run: |
@@ -71,14 +63,9 @@ jobs:
               HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
               HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
               NO_PROXY: ${{ secrets.NO_PROXY }}
+              http_proxy: ${{ secrets.HTTP_PROXY }}
+              https_proxy: ${{ secrets.HTTPS_PROXY }}
+              no_proxy: ${{ secrets.NO_PROXY }}
             run: |
-               docker run --rm \
-                 --memory=4g \
-                 --cpus=2 \
-                 -e HTTP_PROXY \
-                 -e HTTPS_PROXY \
-                 -e NO_PROXY \
-                 -v ${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE} \
-                 cuaesd/aesd-autotest:assignment6-yocto \
-                 --workdir=${GITHUB_WORKSPACE} \
-                 ./full-test.sh
+               cd ${GITHUB_WORKSPACE}
+               ./full-test.sh
